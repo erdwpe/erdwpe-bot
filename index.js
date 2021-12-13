@@ -1,3 +1,4 @@
+/*erdwpe*/
 const {
   WAConnection,
   MessageType,
@@ -43,7 +44,8 @@ const { EmojiAPI } = require("emoji-api");
 const emoji = new EmojiAPI();
 const yts = require("yt-search");
 const imgbb = require("imgbb-uploader");
-const { fetchJson, getBase64, kyun, createExif } = require("./lib/fetcher");
+const { createExif } = require("./lib/exif");
+const { getBase64, kyun, fetchJson } = require("./lib/fetcher");
 const { recognize } = require("./lib/ocr");
 const aaa = require("./lib/fetcher");
 const getRandom = aaa.getRandom;
@@ -69,7 +71,7 @@ erdwpe.on("CB:action,,call", async (json) => {
   console.log("call dari " + callerId);
   erdwpe.sendMessage(
     callerId,
-    "「 Reject Call 」\nMaaf Kami Tidak Bisa Menerima Panggilan!\n\nSorry We Can't Receive Calls!\n\nTelpon/call = block\n\nChat owner: wa.me/6281392641570 agar dibuka blok-nya!",
+    "「 Reject Call 」\nMaaf Kami Tidak Bisa Menerima Panggilan!\n\nSorry We Can\'t Receive Calls!\n\nTelpon/call = block\n\nChat owner: wa.me/6281392641570 agar dibuka blok-nya!",
     MessageType.text
   );
   await sleep(4000);
@@ -423,7 +425,6 @@ erdwpe.on("chat-update", async (lin) => {
 ❏ *Jam:* ${jmn}
 ❏ *Hari/Tanggal:* ${day} ${weton}, ${calender}
 ❏ *Website:* https://erdwpe.xyz/
-❏ *Instagram:* https://instagram.com/erdwpebot/
 ❏ *Lib:* Baileys
 ❏ *Hai:* ${pushname}
 ❏ *Prefix:* 「 ${prefix} 」
@@ -436,6 +437,8 @@ erdwpe.on("chat-update", async (lin) => {
 ► _${prefix}colong_
 ► _${prefix}ttp_
 ► _${prefix}attp_
+► _${prefix}triggered_
+► _${prefix}pet_
 ► _${prefix}emoji_
 ► _${prefix}meme_
 
@@ -451,7 +454,6 @@ erdwpe.on("chat-update", async (lin) => {
 ► _${prefix}slow_
 
 *</GRUP>*
-► _${prefix}fitnah_
 ► _${prefix}linkgc_
 ► _${prefix}promote_
 ► _${prefix}demote_
@@ -461,13 +463,7 @@ erdwpe.on("chat-update", async (lin) => {
 ► _${prefix}add_
 ► _${prefix}kick_
 
-*</TAG>*
-► _${prefix}hidetag_
-► _${prefix}imagetag_
-► _${prefix}stickertag_
-
 *</DOWNLOAD>*
-► _${prefix}ytsearch_ <query>
 ► _${prefix}play_ <query>
 ► _${prefix}ytmp3_ <link>
 ► _${prefix}ytmp4_ <link>
@@ -492,6 +488,8 @@ erdwpe.on("chat-update", async (lin) => {
 *</FUN>*
 ► _${prefix}spam_
 ► _${prefix}ocr_
+► _${prefix}dare_
+► _${prefix}truth_
 ► _${prefix}ppcouple_
 ► _${prefix}owner_
 ► _${prefix}setpp_
@@ -604,6 +602,22 @@ ${
           wa.kick(from, [args[0] + "@s.whatsapp.net"]);
         }
         break;
+        case "dare":
+				data = await getJson(
+					"https://raw.githubusercontent.com/erlanggadwi/txt/main/dare.json"
+				);
+				array = data;
+				random = array[Math.floor(Math.random() * array.length)];
+				reply(random);
+				break;
+			case "truth":
+				data = await getJson(
+					"https://raw.githubusercontent.com/erlanggadwi/txt/main/truth.json"
+				);
+				array = data;
+				random = array[Math.floor(Math.random() * array.length)];
+				reply(random);
+				break;
       case "add":
         if (!isAdmin) return reply("only for admin group");
         if (!args) return reply(`Penggunaan ${prefix}add 628xxxx`);
@@ -864,11 +878,11 @@ ${
       case "smeme":
         if (!q.includes("|"))
           return reply(
-            `*Kirim Atau Reply Gambar Dengan Caption:*\n${command} ERDWPE|BOT`
+            `*Kirim Atau Reply Gambar Dengan Caption:*\n${prefix}ERDWPE|BOT`
           );
         if (!isQuotedImage && !isImage)
           return reply(
-            `*Kirim Atau Reply Gambar Dengan Caption:*\n${command} ERDWPE|BOT`
+            `*Kirim Atau Reply Gambar Dengan Caption:*\n${prefix}ERDWPE|BOT`
           );
         gh = body.slice(7).replace(/ /g, "%20");
         wo1 = gh.split("|")[0];
@@ -886,6 +900,20 @@ ${
           erdwpe.sendSticker(from, tek3s, lin);
         }
         break;
+        case "pet":
+        if (!isQuotedImage && !isImage)
+          return reply(`Reply/Kirim image Dengan Caption ${command}`);
+        jarsw3 = isQuotedImage
+          ? JSON.parse(JSON.stringify(lin).replace("quotedM", "m")).message
+              .extendedTextMessage.contextInfo
+          : lin;
+        const getbufsw2 = await erdwpe.downloadAndSaveMediaMessage(jarsw3);
+        res34 = await uploadImages(getbufsw2);
+        buffertt = await getBuffer(
+          `https://erdwpe-api.herokuapp.com/creator/pet?avatarURL=${res34}`
+        );
+        erdwpe.sendSticker(from, buffertt, lin);
+        break;
       case "triggered":
         if (!isQuotedImage && !isImage)
           return reply(`Reply/Kirim image Dengan Caption ${command}`);
@@ -896,7 +924,7 @@ ${
         const getbufs2 = await erdwpe.downloadAndSaveMediaMessage(jars3);
         res3 = await uploadImages(getbufs2);
         buffer = await getBuffer(
-          `https://some-random-api.ml/canvas/triggered?avatar=${res3}`
+          `https://erdwpe-api.herokuapp.com/creator/triggered?avatarURL=${res3}`
         );
         erdwpe.sendSticker(from, buffer, lin);
         break;
@@ -914,52 +942,7 @@ ${
         buffer = await getBuffer(
           `https://xteam.xyz/attp?file&text=${ini_txt1}`
         );
-        caliph.sendSticker(from, buffer, lin);
-        break;
-      case "nobg":
-      case "removebg":
-        if ((isMedia && !lin.message.videoMessage) || isQuotedImage) {
-          jars = isQuotedImage
-            ? JSON.parse(JSON.stringify(lin).replace("quotedM", "m")).message
-                .extendedTextMessage.contextInfo
-            : lin;
-          wors = await erdwpe.downloadAndSaveMediaMessage(jars);
-          datae1 = await imageToBase64(
-            JSON.stringify(wors).replace(/\"/gi, "")
-          );
-          fs.writeFileSync("d.jpg", datae1, "base64");
-          anu1 = await uploadImages("d.jpg");
-          baleg1 = await getBuffer(
-            `https://api.lolhuman.xyz/api/removebg?apikey=erdwpe2003&img=${anu1}`
-          );
-          erdwpe.sendMessage(from, baleg1, MessageType.image, {
-            quoted: {
-              key: {
-                fromMe: false,
-                participant: `0@s.whatsapp.net`,
-              },
-              message: {
-                imageMessage: {
-                  url: "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc",
-                  mimetype: "image/jpeg",
-                  caption: "removebg nya kak",
-                  fileSha256: "+Ia+Dwib70Y1CWRMAP9QLJKjIJt54fKycOfB2OEZbTU=",
-                  fileLength: "28777",
-                  height: 1080,
-                  width: 1079,
-                  mediaKey: "vXmRR7ZUeDWjXy5iQk17TrowBzuwRya0errAFnXxbGc=",
-                  fileEncSha256: "sR9D2RS5JSifw49HeBADguI23fWDz1aZu4faWG/CyRY=",
-                  directPath:
-                    "/v/t62.7118-24/21427642_840952686474581_572788076332761430_n.enc?oh=3f57c1ba2fcab95f2c0bb475d72720ba&oe=602F3D69",
-                  mediaKeyTimestamp: "1610993486",
-                  jpegThumbnail: fs.readFileSync("./stik/thumb.jpeg"),
-                  scansSidecar:
-                    "1W0XhfaAcDwc7xh1R8lca6Qg/1bB4naFCSngM2LKO2NoP5RI7K+zLw==",
-                },
-              },
-            },
-          });
-        }
+        erdwpe.sendSticker(from, buffer, lin);
         break;
       case "fakethumb":
         if (!isOwner && !itsMe) return await reply("This command only owner");
@@ -1086,7 +1069,7 @@ ${
         wa.sendFakeStatus(from, "succes");
         break;
       case "ppcouple":
-        getres = await axios.get(`https://api.erdwpe.xyz/randomimg/ppcouple`);
+        getres = await axios.get(`https://erdwpe-api.herokuapp.com/randomimg/ppcouple`);
         var { male, female } = getres.data;
         picmale = await getBuffer(`${male}`);
         erdwpe.sendMessage(from, picmale, image, {
@@ -1146,18 +1129,17 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
         await reply(`Success demote member`);
         break;
       case "admin":
+	if (!isGroup) return await reply("this command only for group");
         var text4 = msg.admin(groupAdmins, groupName);
         await wa.sendFakeStatus(from, text4, "LIST ADMIN", groupAdmins);
         break;
       case "linkgc":
+	if (!isGroup) return await reply("this command only for group");
         var link = await wa.getGroupInvitationCode(from);
         await wa.sendFakeStatus(from, link, "This link group");
         break;
-      case "play":
-        reply(
-          `Fitur dalam perbaikan silakan gunakan ${prefix}ytmp3 untuk mendownload lagu dari youtube`
-        );
-        /*if (args.length === 0)
+   case "play":
+        if (args.length === 0)
           return reply(
             `Kirim perintah *${prefix}play* _Judul lagu yang akan dicari_`
           );
@@ -1171,7 +1153,7 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
             axios
               .get(`https://tinyurl.com/api-create.php?url=${dl_link}`)
               .then(async (a) => {
-                if (Number(filesize) >= 100000)
+                if (Number(filesize) >= 40000)
                   return sendMediaURL(
                     from,
                     thumb,
@@ -1184,7 +1166,7 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
           });
         } catch (err) {
           reply("ERROR");
-        }*/
+        }
         break;
       case "shazam":
         //wa.fakeStatusForwarded(from, '_tunggu sebentar_')
@@ -1208,7 +1190,7 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
           );
         ini_url = args[0];
         getresult = await axios.get(
-          `https://api.erdwpe.xyz/downloader/igstory?username=${ini_url}`
+          `https://erdwpe-api.herokuapp.com/downloader/igstory?username=${ini_url}`
         );
         if (getresult.data.error)
           return reply(
@@ -1237,7 +1219,7 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
             `Example: ${prefix + command} https://vt.tiktok.com/ZSwWCk5o/`
           );
         ini_url = args[0];
-        ini_url = `https://api.erdwpe.xyz/downloader/tiktok?url=${ini_url}`;
+        ini_url = `https://erdwpe-api.herokuapp.com/downloader/tiktok?url=${ini_url}`;
         get_result = await fetchJson(ini_url);
         ini_buffer = await getBuffer(get_result.result.nowatermark);
         await erdwpe.sendMessage(from, ini_buffer, video, {
@@ -1278,7 +1260,7 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
         reply(`*Mohon Tunggu Sebentar*`);
         ini_url = budy.slice(11);
         ini_url = await axios.get(
-          `https://api.erdwpe.xyz/downloader/twitter?link=${ini_url}`
+          `https://erdwpe-api.herokuapp.com/downloader/twitter?link=${ini_url}`
         );
         ini_buffer = await getBuffer(ini_url.data.HD);
         await erdwpe.sendMessage(from, ini_buffer, MessageType.video, {
@@ -1319,7 +1301,7 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
           throw `Silahkan masukkan URL yang valid!`;
         ini_url = args[0];
         getresult = await axios.get(
-          `https://api.erdwpe.xyz/downloader/igdl?link=${ini_url}`
+          `https://erdwpe-api.herokuapp.com/downloader/igdl?link=${ini_url}`
         );
         if (getresult.data.error)
           return reply("*Link Tidak Valid/Private Akun Coba Cek Kembali*");
@@ -1392,9 +1374,7 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
         break;
       case "ytmp4":
         if (args.length === 0)
-          return reply(
-            `Kirim perintah *${prefix}ytmp4 [linkYt]*\n *Example:* ${prefix}ytmp4 https://www.youtube.com/watch?v=ZG_yB1ZP798`
-          );
+          return reply(`Kirim perintah *${prefix}ytmp4 [linkYt]*\n *Example:* ${prefix}ytmp4 https://www.youtube.com/watch?v=ZG_yB1ZP798`);
         //wa.fakeStatusForwarded(from, '_tunggu sebentar_')
         let isLinks2 = args[0].match(
           /(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/
@@ -1424,9 +1404,7 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
       case "ytmp3":
         //wa.fakeStatusForwarded(from, '_tunggu sebentar_')
         if (args.length === 0)
-          return reply(
-            `Kirim perintah *${prefix}ytmp3 [linkYt]*\n *Example:* ${prefix}ytmp3 https://www.youtube.com/watch?v=ZG_yB1ZP798`
-          );
+          return reply(`Kirim perintah *${prefix}ytmp3 [linkYt]*\n *Example:* ${prefix}ytmp3 https://www.youtube.com/watch?v=ZG_yB1ZP798`);
         let isLinks = args[0].match(
           /(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/
         );
@@ -1437,13 +1415,13 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
             axios
               .get(`https://erdwpe.me/create.php?url=${dl_link}`)
               .then((a) => {
-                if (Number(filesize) >= 30000)
+                if (Number(filesize) >= 40000)
                   return sendMediaURL(
                     from,
                     thumb,
                     `*Data Berhasil Didapatkan!*\n\n*Title* : ${title}\n*Ext* : MP3\n*Filesize* : ${filesizeF}\n*Link* : ${a.data.result.url}\n\n_Untuk durasi lebih dari batas disajikan dalam mektuk link_`
                   );
-                const captions = `*YTMP3*\n\n*Title* : ${title}\n*Ext* : MP3\n*Size* : ${filesize}\n\n_Silahkan tunggu file media sedang dikirim mungkin butuh beberapa menit_`;
+                const captions = `*YTMP3*\n\n*Title* : ${title}\n*Ext* : MP3\n*Size* : ${filesizeF}\n\n_Silahkan tunggu file media sedang dikirim mungkin butuh beberapa menit_`;
                 sendMediaURL(from, thumb, captions);
                 sendMediaURL(from, dl_link).catch(() => reply("ERROR"));
               });
@@ -1457,6 +1435,8 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
           ((isMedia && !lin.message.videoMessage) || isQuotedImage) &&
           args.length == 0
         ) {
+          var a = "Erdwpe Bot";
+          var b = "Instagram: @erdwpebot";
           const encmedia = isQuotedImage
             ? JSON.parse(JSON.stringify(lin).replace("quotedM", "m")).message
                 .extendedTextMessage.contextInfo
@@ -1467,28 +1447,42 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
           );
           fs.writeFileSync("./lib/image/anu.jpg", datae12, "base64");
           const image = await Jimp.read("./lib/image/anu.jpg");
-          image.circle().write("./lib/image/anuresult.jpg");
+          image.circle().write("./lib/image/anuresult.png");
+          await createExif(a, b);
           ran = NumberRandom(".webp");
-          await ffmpeg(`./lib/image/anuresult.jpg`)
+          await ffmpeg(`./lib/image/anuresult.png`)
             .input(media)
             .on("error", function (err) {
               fs.unlinkSync(media);
               reply("error");
             })
             .size("300x300")
-            .on("end", function () {
-              erdwpe.sendMessage(from, fs.readFileSync(ran), sticker, {
-                quoted: lin,
+            .on("end", () => {
+              _out = getRandom(".webp");
+              spawn("webpmux", [
+                "-set",
+                "exif",
+                "./stik/data.exif",
+                ran,
+                "-o",
+                _out,
+              ]).on("exit", () => {
+                erdwpe.sendMessage(
+                  from,
+                  fs.readFileSync(_out),
+                  "stickerMessage",
+                  { quoted: lin }
+                );
+                fs.unlinkSync(media);
+                fs.unlinkSync(ran);
+                fs.unlinkSync("./lib/image/anu.jpg");
               });
-              fs.unlinkSync(media);
-              fs.unlinkSync(ran);
-              fs.unlinkSync("./lib/image/anu.jpg");
             })
             .addOutputOptions([
               `-vcodec`,
               `libwebp`,
               `-vf`,
-              `scale='min(300,iw)':min'(300,ih)':force_original_aspect_ratio=decrease,fps=15, pad=300:300:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`,
+              `scale='min(512,iw)':min'(512,ih)':force_original_aspect_ratio=decrease,fps=15, pad=512:512:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`,
             ])
             .toFormat("webp")
             .save(ran);
@@ -1496,7 +1490,6 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
           reply("mana fotonya");
         }
         break;
-
       case "s":
       case "sticker":
       case "stiker":
@@ -1742,7 +1735,7 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
         );
         erdwpe.sendSticker(from, ini_buffer, lin);
         break;
-      case "tomp3":
+case "tomp3":
         if (!isQuotedVideo)
           return wa.fakeStatusForwarded(from, "Reply videonya!");
         //wa.fakeStatusForwarded(from, '_tunggu sebentar_')
@@ -1841,6 +1834,7 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
         }
         break;
       case "bass":
+	if (!isQuotedAudio) return reply("reply audio nya!");
         encmedia = JSON.parse(JSON.stringify(lin).replace("quotedM", "m"))
           .message.extendedTextMessage.contextInfo;
         media = await erdwpe.downloadAndSaveMediaMessage(encmedia);
@@ -2085,18 +2079,10 @@ Delete URL : *Udh Dikirim Di Private Chat :)*
         if (isCmd) return reply(`Command *${command}* not found`);
     }
   } catch (e) {
-    e = String(e); // Fixed In Consolog 🌿
-    if (
-      !e.includes("this.isZero") &&
-      !e.includes("jid") &&
-      !e.includes("Cannot read property 'fromMe' of undefined") &&
-      !e.includes(
-        "Cannot use 'in' operator to search for 'text' in undefined"
-      ) &&
-      !e.includes("Cannot read property 'key' of undefined") &&
-      !e.includes("Cannot use 'in' operator to search for 'text' in undefined")
-    ) {
-      console.log("Message : %s", color(e, "yellow"));
-    }
+    console.log(
+      chalk.whiteBright("├"),
+      chalk.keyword("aqua")("[  ERROR  ]"),
+      chalk.keyword("red")(e)
+    );
   }
 });
